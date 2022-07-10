@@ -64,4 +64,9 @@ public class WebSocketTransport implements Transport {
 	public String key() {
 		return socket.remoteAddress().toString();
 	}
+
+	@Override
+	public String host() {
+		return socket.remoteAddress().host();
+	}
 }

@@ -2,6 +2,7 @@ package io.taranis.opencluster.messages;
 
 import java.util.List;
 
+
 public class HeartBeatMessage extends MessageBase {
 
 	private List<String> nodes;
@@ -27,5 +28,5 @@ public class HeartBeatMessage extends MessageBase {
 	public void setNodes(List<String> nodes) {
 		this.nodes = nodes;
 	}
-
+	
 }

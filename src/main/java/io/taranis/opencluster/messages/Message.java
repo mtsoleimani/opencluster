@@ -7,4 +7,8 @@ public interface Message {
 	public String key();
 	
 	public String value();
+	
+	public String toString();
+	
+	public String id();
 }

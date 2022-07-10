@@ -1,9 +1,12 @@
 package io.taranis.opencluster.cluster.membership;
 
+import io.taranis.opencluster.server.transport.Transport;
+
 public class Member {
 	
-	public Member(String address) {
-		this.address = address;
+	public Member(Transport transport) {
+		this.setTransport(transport);
+		this.address = transport.key();
 		this.state = MemberState.ALIVE;
 		this.lastPing = System.currentTimeMillis();
 	}
@@ -14,6 +17,8 @@ public class Member {
 	private MemberState state;
 
 	private long lastPing;
+	
+	private Transport transport;
 
 	public String getAddress() {
 		return address;
@@ -38,6 +43,12 @@ public class Member {
 	public Member kill() {
 		lastPing = 0;
 		this.state = MemberState.DEAD;
+		try {
+			transport.close();
+			transport = null;
+		} catch (Exception e) {
+			
+		}
 		return this;
 	}
 
@@ -48,6 +59,15 @@ public class Member {
 	public Member refresh() {
 		this.lastPing = System.currentTimeMillis();
 		this.state = MemberState.ALIVE;
+		return this;
+	}
+
+	public Transport getTransport() {
+		return transport;
+	}
+
+	public Member setTransport(Transport transport) {
+		this.transport = transport;
 		return this;
 	}
 }

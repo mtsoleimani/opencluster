@@ -24,5 +24,7 @@ public interface Transport {
 
 	public SocketAddress remoteAddress();
 	
+	public String host();
+	
 	public String key();
 }

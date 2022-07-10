@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import io.taranis.opencluster.exception.InvalidMessageException;
 import io.taranis.opencluster.messages.DataMessage;
 import io.taranis.opencluster.messages.HeartBeatMessage;
+import io.taranis.opencluster.messages.LeaveMessage;
 import io.taranis.opencluster.messages.Message;
 import io.taranis.opencluster.messages.MessageType;
 import io.taranis.opencluster.messages.Metadata;
@@ -37,6 +38,9 @@ public class JsonMessageParser implements Metadata {
 
 			case DATA:
 				return parseDataMessage(json);
+				
+			case LEAVE:
+				return parseLeaveMessage(json);
 
 			default:
 				return null;
@@ -65,6 +69,10 @@ public class JsonMessageParser implements Metadata {
 			throw new InvalidMessageException();
 		
 		return new DataMessage(json.getString(KEY), json.getString(VALUE));
+	}
+	
+	private static LeaveMessage parseLeaveMessage(JsonObject json) throws InvalidMessageException {
+		return new LeaveMessage();
 	}
 
 }

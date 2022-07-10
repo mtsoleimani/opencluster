@@ -4,7 +4,9 @@ public enum MessageType {
 
 	HEARTBEAT,
 	
-	DATA
+	DATA,
+	
+	LEAVE
 	
 	;
 	

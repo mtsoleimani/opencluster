@@ -2,8 +2,13 @@ package io.taranis.opencluster.cluster;
 
 import java.util.List;
 
+
 public interface Cluster {
 
+	public void start() throws Exception;  
+	
+	public void shutdown() throws Exception;
+	
 	public void setSeedNodes(List<String> seedNodes);
 	
 	public void join(String node);
@@ -14,5 +19,7 @@ public interface Cluster {
 	
 	public void leave(List<String> nodes);
 	
-	public void sendData(String node, String key, String value);
+	public void sendData(String node, String key, String value) throws Exception;
+	
+	public List<String> toList();
 }
