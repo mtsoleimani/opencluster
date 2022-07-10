@@ -67,28 +67,14 @@ public class ClusterManager implements Cluster, ClusterListener, MessageHandler 
 			}
 		});
 		
-		tryToConnect();
+		join();
 	}
 	
-	private void tryToConnect() {
+	public void join() {
 		hosts.stream().forEach(node -> {
-			Member memeber = memebrPool.get(node);
-			if(memeber != null && memeber.isAlive(nodeTimeout))
-				return;
-			
-			if(memeber != null && !memeber.isAlive(nodeTimeout))
-				memebrPool.purge(node);
-			
-			memebrPool.purge(connectToNode(node));
+			join(node);
 		});
 	}
-	
-	
-	private Transport connectToNode(String node) {
-		//TODO
-		return null;
-	}
-	
 	
 	@Override
 	public void shutdown() throws Exception {
@@ -132,7 +118,7 @@ public class ClusterManager implements Cluster, ClusterListener, MessageHandler 
 		if(memeber != null && !memeber.isAlive(nodeTimeout))
 			memebrPool.purge(node);
 		
-		memeber.getTransport().write(new HeartBeatMessage(memebrPool.toList()).toString());
+		//memeber.getTransport().write(new HeartBeatMessage(memebrPool.toList()).toString());
 	}
 
 	@Override
@@ -203,31 +189,40 @@ public class ClusterManager implements Cluster, ClusterListener, MessageHandler 
 	@Override
 	public void onHearbeat(String node, List<String> neighbors) {
 		// TODO Auto-generated method stub
+		hosts.add(node);
+		neighbors.stream().forEach(neighbor -> {
+			hosts.add(neighbor);
+		});
 		
+		join();
 	}
 
 	@Override
 	public void onNodeFailure(String node) {
 		// TODO Auto-generated method stub
-		
+		hosts.add(node);
+		memebrPool.purge(node);
 	}
 
 	@Override
 	public void onJoinedNode(String node) {
 		// TODO Auto-generated method stub
-		
+		hosts.add(node);
 	}
 
 	@Override
 	public void onJoinedNode(List<String> nodes) {
 		// TODO Auto-generated method stub
-		
+		nodes.stream().forEach(node -> {
+			hosts.add(node);
+		});
 	}
 
 	@Override
 	public void onLeftNode(String node) {
 		// TODO Auto-generated method stub
-		
+		hosts.remove(node);
+		memebrPool.purge(node);
 	}
 
 	@Override
