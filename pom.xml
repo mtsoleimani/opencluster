@@ -1,15 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.taranis</groupId>
-	<artifactId>openclusetr</artifactId>
+	<artifactId>opencluster</artifactId>
 	<version>0.0.1-dev</version>
 	<packaging>jar</packaging>
 	<inceptionYear>2022</inceptionYear>
 
-	<name>openclusetr</name>
+	<name>opencluster</name>
 	<url>http://maven.apache.org</url>
 
 	<developers>
@@ -24,6 +22,14 @@
 			<timezone>+3.30</timezone>
 		</developer>
 	</developers>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/mtsoleimani/opencluster</url>
+		</repository>
+	</distributionManagement>
+
 
 	<properties>
 		<main.class>io.taranis.openclusetr.App</main.class>
@@ -40,7 +46,7 @@
 		<apache-commons-lang3-version>3.12.0</apache-commons-lang3-version>
 
 		<junit.version>3.8.1</junit.version>
-		
+
 	</properties>
 
 
@@ -102,8 +108,6 @@
 		</dependency>
 
 	</dependencies>
-
-
 
 
 	<build>

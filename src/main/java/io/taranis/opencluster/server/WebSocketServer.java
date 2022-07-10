@@ -1,14 +1,15 @@
 package io.taranis.opencluster.server;
 
 
+import java.nio.channels.ClosedChannelException;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.taranis.opencluster.Message;
 import io.taranis.opencluster.MessageHandler;
 import io.taranis.opencluster.exception.InvalidMessageException;
+import io.taranis.opencluster.messages.Message;
 import io.taranis.opencluster.messages.parser.JsonMessageParser;
 import io.taranis.opencluster.server.transport.Transport;
 import io.taranis.opencluster.server.transport.WebSocketTransport;
@@ -119,18 +120,18 @@ public class WebSocketServer extends BasicServer implements Handler<ServerWebSoc
 				handleMessage(JsonMessageParser.parse(text), transport);
 			} catch (InvalidMessageException e) {
 				logger.debug("invalid message " + text + " from: " + transport.toString());
-				messageHandler.onFailure(transport);
+				messageHandler.onFailure(e, transport);
 				return;
 			}
 		});
 
 		webSocket.exceptionHandler( cause -> {
 			logger.error(cause.getLocalizedMessage(), cause);
-			messageHandler.onFailure(transport);
+			messageHandler.onFailure(cause, transport);
 		});
 
 		webSocket.closeHandler(h -> {
-			messageHandler.onFailure(transport);
+			messageHandler.onFailure(new ClosedChannelException(), transport);
 		});
 
 	}
