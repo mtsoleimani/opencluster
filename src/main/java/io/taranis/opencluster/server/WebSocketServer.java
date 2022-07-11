@@ -24,7 +24,6 @@ import io.vertx.core.net.PemKeyCertOptions;
 public class WebSocketServer extends BasicServer implements Handler<ServerWebSocket> {
 
 	private HttpServer httpServer;
-	//(Logger.ROOT_LOGGER_NAME)
 	private final Logger logger = (Logger) LoggerFactory.getLogger(WebSocketServer.class);
 
 	WebSocketServer(Vertx vertx, String host, int port,

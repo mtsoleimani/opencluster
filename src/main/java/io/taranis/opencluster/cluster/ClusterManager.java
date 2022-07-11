@@ -8,7 +8,6 @@ import io.taranis.opencluster.MessageHandler;
 import io.taranis.opencluster.cluster.membership.Member;
 import io.taranis.opencluster.cluster.membership.MemebrPool;
 import io.taranis.opencluster.messages.DataMessage;
-import io.taranis.opencluster.messages.HeartBeatMessage;
 import io.taranis.opencluster.messages.LeaveMessage;
 import io.taranis.opencluster.messages.Message;
 import io.taranis.opencluster.server.BasicServer;
@@ -103,7 +102,7 @@ public class ClusterManager implements Cluster, ClusterListener, MessageHandler 
 			this.hosts.add(ndoe);	
 		});
 		
-		tryToConnect();
+		join();
 	}
 
 	@Override
