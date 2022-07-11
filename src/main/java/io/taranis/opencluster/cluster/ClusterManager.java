@@ -245,6 +245,13 @@ public class ClusterManager implements Cluster, ClusterListener, MessageHandler 
 	}
 
 
+	@Override
+	public void onNodeConnected(String node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	
 
 }
