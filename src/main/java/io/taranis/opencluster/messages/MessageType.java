@@ -6,7 +6,9 @@ public enum MessageType {
 	
 	DATA,
 	
-	LEAVE
+	LEAVE,
+	
+	ACK
 	
 	;
 	

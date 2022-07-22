@@ -7,7 +7,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.net.SocketAddress;
 
-public class WebSocketTransport implements Transport {
+public class WebSocketTransport implements ServerTransport {
 
 	private final ServerWebSocket socket;
 
@@ -16,32 +16,32 @@ public class WebSocketTransport implements Transport {
 	}
 
 	@Override
-	public Future<Void> close() {
+	public Future<Void> closeAsync() {
 		return socket.close();
 	}
 
 	@Override
-	public void close(Handler<AsyncResult<Void>> handler) {
+	public void closeAsync(Handler<AsyncResult<Void>> handler) {
 		socket.close(handler);
 	}
 
 	@Override
-	public Future<Void> write(Buffer data) {
+	public Future<Void> writeAsync(Buffer data) {
 		return socket.write(data);
 	}
 
 	@Override
-	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void writeAsync(Buffer data, Handler<AsyncResult<Void>> handler) {
 		socket.write(data, handler);
 	}
 
 	@Override
-	public Future<Void> write(String text) {
+	public Future<Void> writeAsync(String text) {
 		return socket.writeTextMessage(text);
 	}
 
 	@Override
-	public void write(String text, Handler<AsyncResult<Void>> handler) {
+	public void writeAsync(String text, Handler<AsyncResult<Void>> handler) {
 		socket.writeTextMessage(text, handler);
 	}
 
@@ -57,7 +57,7 @@ public class WebSocketTransport implements Transport {
 
 	@Override
 	public TransportType socketType() {
-		return TransportType.WEBSOCKET;
+		return TransportType.WEBSOCKET_SERVER;
 	}
 
 	@Override
@@ -68,5 +68,20 @@ public class WebSocketTransport implements Transport {
 	@Override
 	public String host() {
 		return socket.remoteAddress().host();
+	}
+
+	@Override
+	public void close() throws Exception {
+		socket.close();
+	}
+
+	@Override
+	public void write(Buffer data) {
+		socket.write(data);
+	}
+
+	@Override
+	public void write(String text) {
+		socket.writeTextMessage(text);
 	}
 }

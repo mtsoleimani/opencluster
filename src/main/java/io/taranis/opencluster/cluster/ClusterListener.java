@@ -4,18 +4,14 @@ import java.util.List;
 
 public interface ClusterListener {
 
-	public void onHearbeat(String node, List<String> neighbors);
-	
-	public void onNodeConnected(String node);
+	public void onDiscovery(List<String> hosts);
 
-	public void onNodeFailure(String node);
+	public void onJoinedNode(String host);
 	
-	public void onJoinedNode(String node);
+	public void onLeftNode(String host);
 	
-	public void onJoinedNode(List<String> nodes);
+	public void onNodeFailure(String host);
 	
-	public void onLeftNode(String node);
-	
-	public void onReceiveData(String node, String key, String value);
+	public void onReceiveData(String host, String key, String value);
 
 }

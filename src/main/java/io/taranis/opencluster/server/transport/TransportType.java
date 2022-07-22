@@ -4,5 +4,7 @@ public enum TransportType {
 
 	BINARY_SOCKET,
 	
-	WEBSOCKET
+	WEBSOCKET_CLIENT,
+	
+	WEBSOCKET_SERVER,
 }

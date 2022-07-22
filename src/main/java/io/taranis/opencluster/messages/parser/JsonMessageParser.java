@@ -3,6 +3,7 @@ package io.taranis.opencluster.messages.parser;
 import java.util.stream.Collectors;
 
 import io.taranis.opencluster.exception.InvalidMessageException;
+import io.taranis.opencluster.messages.AckMessage;
 import io.taranis.opencluster.messages.DataMessage;
 import io.taranis.opencluster.messages.HeartBeatMessage;
 import io.taranis.opencluster.messages.LeaveMessage;
@@ -42,6 +43,10 @@ public class JsonMessageParser implements Metadata {
 			case LEAVE:
 				return parseLeaveMessage(json);
 
+				
+			case ACK:
+				return parseAckMessage(json);
+				
 			default:
 				return null;
 			}
@@ -73,6 +78,13 @@ public class JsonMessageParser implements Metadata {
 	
 	private static LeaveMessage parseLeaveMessage(JsonObject json) throws InvalidMessageException {
 		return new LeaveMessage();
+	}
+
+	private static AckMessage parseAckMessage(JsonObject json) throws InvalidMessageException {
+		if(!json.containsKey(VALUE))
+			throw new InvalidMessageException();
+		
+		return new AckMessage(json.getString(VALUE));
 	}
 
 }

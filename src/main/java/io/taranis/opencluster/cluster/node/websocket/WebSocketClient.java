@@ -1,5 +1,10 @@
-package io.taranis.opencluster.client;
+package io.taranis.opencluster.cluster.node.websocket;
 
+import java.nio.channels.ClosedChannelException;
+
+import io.taranis.opencluster.cluster.node.ConnectionListener;
+import io.taranis.opencluster.server.transport.ClientWebSocketTransport;
+import io.taranis.opencluster.server.transport.Transport;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -18,13 +23,14 @@ public class WebSocketClient extends AbstractVerticle {
 	
 	private final ConnectionListener connectionListener;
 	
+
 	public WebSocketClient(Vertx vertx, String host, int port, ConnectionListener connectionListener) {
 		this.vertx = vertx;
 		this.host = host;
 		this.port = port;
 		this.connectionListener = connectionListener;
 	}
-	
+
 	
 	@Override
     public void start() {
@@ -39,9 +45,25 @@ public class WebSocketClient extends AbstractVerticle {
 			
         	if(ctx.failed()) {
         		connectionListener.onFailure(ctx.cause(), host, port);
+        		
         	} else {
+        		
         		webSocket = ctx.result();
+        		Transport transport = new ClientWebSocketTransport(webSocket);
+        		
         		connectionListener.onConnected(host, port);
+        		
+        		webSocket.textMessageHandler(text -> {
+        			connectionListener.onData(text, transport);
+        		});
+        		
+        		webSocket.exceptionHandler(throwable -> {
+        			connectionListener.onFailure(throwable, host, port);
+        		});
+        		
+        		webSocket.closeHandler(h -> {
+        			connectionListener.onFailure(new ClosedChannelException(), host, port);
+        		});
         	}
 		});
         
