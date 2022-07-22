@@ -3,15 +3,16 @@ package io.taranis.opencluster.cluster.node;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.Vertx;
 
 
-public class ClientPool implements NodeListener, Runnable {
+public class ClientPool implements NodeListener {
 
 	private final NodePool nodePool;
 	
-	private int heartBeatInterval; //TODO needs timer 
+	private final int heartBeatInterval; 
 	
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 	
@@ -40,10 +41,7 @@ public class ClientPool implements NodeListener, Runnable {
 	public void leave(String host, boolean silent) {
 		nodePool.purge(host);
 		Node node = nodePool.get(host);
-		if(node == null)
-			return;
-		
-		if(silent)
+		if(silent || node == null)
 			return;
 		
 		try {
@@ -68,12 +66,19 @@ public class ClientPool implements NodeListener, Runnable {
 	public void onNodeConnected(NodeClient node) {
 		try {
 			node.heartbeat(nodePool.toList());
+			schedule(node);
 		} catch (Exception e) {
 			onNodeFailure(node);
 			e.printStackTrace();
 		}
 	}
 
+	private void schedule(final NodeClient node) {
+		scheduler.schedule(() -> {
+			onNodeConnected(node);
+		}, heartBeatInterval, TimeUnit.SECONDS);
+	}
+	
 	@Override
 	public void onNodeFailure(NodeClient node) {
 		nodePool.reset(node.host());
@@ -104,9 +109,4 @@ public class ClientPool implements NodeListener, Runnable {
 		});
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
 }

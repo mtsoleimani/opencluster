@@ -20,8 +20,6 @@ public class ClusterBuilder {
 	
 	private TcpOptionsConf tcpOptionsConf;
 	
-	private int threads;
-	
 	public static ClusterBuilder newInstance() {
 		return new ClusterBuilder();
 	}
@@ -56,11 +54,10 @@ public class ClusterBuilder {
 		return this;
 	}
 
-	public ClusterBuilder withThreads(int threads) {
-		this.threads = threads;
-		return this;
-	}
 	
+	public Cluster build() {
+		return new ClusterManager(port, transportType, tcpOptionsConf, nodeTimeout, heartBeatInterval, hosts);
+	}
 	
 
 }
