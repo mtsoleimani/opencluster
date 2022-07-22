@@ -66,6 +66,7 @@ public class NodePool {
 		return pool.entrySet().stream()
 				.map(keyValue -> keyValue.getValue())
 				.filter(node -> node.isAlive(timeoutSeconds))
+				.filter(node -> !isInBlockList(node.getAddress()))
 				.map(node -> node.getAddress())
 				.collect(Collectors.toList());
 	}
