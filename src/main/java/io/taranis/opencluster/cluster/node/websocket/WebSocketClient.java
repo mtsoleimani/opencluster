@@ -40,7 +40,6 @@ public class WebSocketClient extends AbstractVerticle {
 	
 	private void startClient() {
         HttpClient client = vertx.createHttpClient();
-
         client.webSocket(port, host, "/", ctx ->  {
 			
         	if(ctx.failed()) {
@@ -61,9 +60,9 @@ public class WebSocketClient extends AbstractVerticle {
         			connectionListener.onFailure(throwable, host, port);
         		});
         		
-        		webSocket.closeHandler(h -> {
-        			connectionListener.onFailure(new ClosedChannelException(), host, port);
-        		});
+//        		webSocket.closeHandler(h -> {
+//        			connectionListener.onFailure(new ClosedChannelException(), host, port);
+//        		});
         	}
 		});
         

@@ -1,0 +1,25 @@
+
+if [ -d libs ]; then rm -Rf libs; fi
+if [ -d target ]; then rm -Rf target; fi
+if [ -f opencluster.jar ]; then rm opencluster.jar; fi
+
+mvn install
+
+cp -fr target/opencluster.jar  ./
+cp -fr target/libs  ./
+
+
+#scp -r libs root@s111:/opt/opencluster
+#scp -r libs root@s112:/opt/opencluster
+#scp -r libs root@s113:/opt/opencluster
+#scp -r libs root@s114:/opt/opencluster
+#scp -r libs root@s115:/opt/opencluster
+
+
+
+
+scp opencluster.jar root@s111:/opt/opencluster
+scp opencluster.jar root@s112:/opt/opencluster
+scp opencluster.jar root@s113:/opt/opencluster
+scp opencluster.jar root@s114:/opt/opencluster
+scp opencluster.jar root@s115:/opt/opencluster

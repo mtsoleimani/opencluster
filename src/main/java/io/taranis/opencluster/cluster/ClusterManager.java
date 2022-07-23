@@ -26,7 +26,8 @@ public class ClusterManager implements Cluster, ClusterListener {
 			int nodeTimeout, int heartBeatInterval, Set<String> seeds) {
 		ClientNodeFactory.setTransportType(transportType);
 		this.server = new ClusterServer(vertx, port, transportType, tcpOptionsConf, this);
-		this.clientPool = new ClientPool(vertx, nodeTimeout, heartBeatInterval);
+		this.clientPool = new ClientPool(vertx, port, nodeTimeout, heartBeatInterval);
+		this.seeds = seeds;
 	}
 	
 	
@@ -49,6 +50,7 @@ public class ClusterManager implements Cluster, ClusterListener {
 				return null;
 			}
 		});
+		
 		
 		if(seeds == null || seeds.isEmpty())
 			return;

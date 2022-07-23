@@ -7,7 +7,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.taranis.opencluster.MessageHandler;
+import io.taranis.opencluster.cluster.MessageHandler;
 import io.taranis.opencluster.exception.InvalidMessageException;
 import io.taranis.opencluster.messages.Message;
 import io.taranis.opencluster.messages.parser.JsonMessageParser;
@@ -110,10 +110,11 @@ public class WebSocketServer extends BasicServer implements Handler<ServerWebSoc
 	public void handle(ServerWebSocket webSocket) {
 
 		Transport transport = new WebSocketTransport(webSocket);
+		messageHandler.onConnected(transport);
 
 		webSocket.textMessageHandler(text -> {
 
-			logger.debug("incoming message " + transport.toString() + " from:" + transport.toString());
+			logger.debug("incoming message " + transport.toString() + " from: " + transport.toString());
 
 			try {
 				handleMessage(JsonMessageParser.parse(text), transport);

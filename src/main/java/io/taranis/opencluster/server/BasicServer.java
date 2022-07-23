@@ -1,6 +1,6 @@
 package io.taranis.opencluster.server;
 
-import io.taranis.opencluster.MessageHandler;
+import io.taranis.opencluster.cluster.MessageHandler;
 import io.taranis.opencluster.messages.Message;
 import io.taranis.opencluster.server.transport.Transport;
 import io.vertx.core.AbstractVerticle;

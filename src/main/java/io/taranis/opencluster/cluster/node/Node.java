@@ -13,8 +13,7 @@ public class Node extends BasicNode {
 
 	@Override
 	public Node kill() {
-		lastPing = 0;
-		this.state = NodeState.DEAD;
+		super.kill();
 		if(nodeClient == null)
 			return this;
 		

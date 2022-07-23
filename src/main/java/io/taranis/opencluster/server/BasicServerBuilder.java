@@ -1,6 +1,6 @@
 package io.taranis.opencluster.server;
 
-import io.taranis.opencluster.MessageHandler;
+import io.taranis.opencluster.cluster.MessageHandler;
 import io.vertx.core.Vertx;
 
 public class BasicServerBuilder {

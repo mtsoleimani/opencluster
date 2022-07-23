@@ -1,5 +1,6 @@
 package io.taranis.opencluster.cluster.node;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BasicNode {
 	
@@ -7,6 +8,7 @@ public class BasicNode {
 		
 	}
 	
+	protected AtomicBoolean connected = new AtomicBoolean(false);
 	
 	protected String address;
 
@@ -36,6 +38,7 @@ public class BasicNode {
 	}
 
 	public BasicNode kill() {
+		connected.set(false);
 		lastPing = 0;
 		this.state = NodeState.DEAD;
 		return this;
@@ -51,4 +54,12 @@ public class BasicNode {
 		return this;
 	}
 
+	public void setConnected() {
+		connected.set(true);
+	}
+	
+	public boolean isConnected() {
+		return connected.get();
+	}
+	
 }

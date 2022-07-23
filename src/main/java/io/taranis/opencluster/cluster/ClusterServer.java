@@ -1,7 +1,6 @@
 package io.taranis.opencluster.cluster;
 
 
-import io.taranis.opencluster.MessageHandler;
 import io.taranis.opencluster.messages.AckMessage;
 import io.taranis.opencluster.messages.HeartBeatMessage;
 import io.taranis.opencluster.messages.Message;
@@ -90,11 +89,18 @@ public class ClusterServer implements MessageHandler {
 
 	@Override
 	public void onFailure(Throwable throwable, Transport transport) {
+		System.out.println("connection has been diconnected from: " + transport.remoteAddress().host());
 		try {
 			transport.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	@Override
+	public void onConnected(Transport transport) {
+		System.out.println("node connected from: " + transport.remoteAddress().host());
 	}
 
 }

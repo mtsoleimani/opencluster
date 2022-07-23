@@ -1,5 +1,6 @@
 package io.taranis.opencluster.messages.parser;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import io.taranis.opencluster.exception.InvalidMessageException;
@@ -11,7 +12,6 @@ import io.taranis.opencluster.messages.Message;
 import io.taranis.opencluster.messages.MessageType;
 import io.taranis.opencluster.messages.Metadata;
 import io.vertx.core.json.DecodeException;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class JsonMessageParser implements Metadata {
@@ -62,11 +62,12 @@ public class JsonMessageParser implements Metadata {
 		if(!json.containsKey(VALUE))
 			return new HeartBeatMessage();
 		
-		JsonArray array = json.getJsonArray(VALUE);
-		if(array.isEmpty())
+		
+		String[] hosts = json.getString(VALUE).trim().split(",");
+		if(hosts == null || hosts.length == 0)
 			return new HeartBeatMessage();
 		
-		return new HeartBeatMessage(array.stream().map(i -> i.toString()).collect(Collectors.toList()));
+		return new HeartBeatMessage(Arrays.stream(hosts).map(i -> i.toString()).collect(Collectors.toList()));
 	}
 
 	private static DataMessage parseDataMessage(JsonObject json) throws InvalidMessageException {

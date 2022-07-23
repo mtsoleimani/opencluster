@@ -14,21 +14,35 @@ public class ClientPool implements NodeListener {
 	
 	private final int heartBeatInterval; 
 	
+	private final int port;
+	
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 	
-	public ClientPool(Vertx vertx, int timeoutMinutes, int heartBeatInterval) {
+	public ClientPool(Vertx vertx, int port, int timeoutMinutes, int heartBeatInterval) {
 		nodePool = new NodePool(vertx, timeoutMinutes);
+		this.port = port;
 		this.heartBeatInterval = heartBeatInterval;
 	}
 	
 	public void join(String host) {
-		Node node = nodePool.newIfExistsGet(host);
+		
 		try {
+			
+			Node node = nodePool.newIfExistsGet(host);
+			node.getNodeClient().setListener(this);
+			
+			if(!node.isConnected()) {
+				node.getNodeClient().connect(host, port);
+				return;
+			}
+			
 			node.getNodeClient().heartbeat(nodePool.toList());
 			nodePool.refresh(node.getNodeClient());
+			
 		} catch (Exception e) {
-			nodePool.reset(host);
 			e.printStackTrace();
+			nodePool.reset(host);
+			//reconnect(host);
 		}
 	}
 	
@@ -57,6 +71,8 @@ public class ClientPool implements NodeListener {
 
 	@Override
 	public void onHearbeat(NodeClient node, List<String> neighbors) {
+		if(!nodePool.isInBlockList(node.host()))
+			nodePool.refresh(node);
 		neighbors.stream().filter(host -> !nodePool.isInBlockList(host)).forEach(host -> {
 			join(host);			
 		});
@@ -64,30 +80,52 @@ public class ClientPool implements NodeListener {
 
 	@Override
 	public void onNodeConnected(NodeClient node) {
+		System.out.println("node connected to: " + node.host());
+		nodePool.get(node.host()).setConnected();
+		heatbeat(node);
+	}
+	
+	private void heatbeat(NodeClient node) {
 		try {
+			if(!nodePool.get(node.host()).isConnected())
+				return;
+			
 			node.heartbeat(nodePool.toList());
+			nodePool.refresh(node);
 			schedule(node);
 		} catch (Exception e) {
-			onNodeFailure(node);
 			e.printStackTrace();
+			onNodeFailure(node);
 		}
 	}
 
 	private void schedule(final NodeClient node) {
 		scheduler.schedule(() -> {
-			onNodeConnected(node);
+			heatbeat(node);
 		}, heartBeatInterval, TimeUnit.SECONDS);
 	}
 	
 	@Override
 	public void onNodeFailure(NodeClient node) {
+		System.out.println("connection has been failed to: " + node.host());
 		nodePool.reset(node.host());
+		reconnect(node.host());
 	}
 
+	
+	private void reconnect(final String host) {
+		System.out.println("reconnection is in schedule...: " + host);
+		scheduler.schedule(() -> {
+			System.out.println("reconnecting to: " + host);
+			join(host);
+		}, heartBeatInterval, TimeUnit.SECONDS);
+	}
 
 	@Override
 	public void onReceiveData(NodeClient node, String key, String value) {
 		// TODO Auto-generated method stub
+		if(!nodePool.isInBlockList(node.host()))
+			nodePool.refresh(node);
 		System.out.println( String.format("incoming data from(%s): key:%s value:%s",  node.host(), key, value));
 	}
 

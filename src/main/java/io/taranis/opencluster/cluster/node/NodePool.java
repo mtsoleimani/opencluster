@@ -38,20 +38,22 @@ public class NodePool {
 	}
 	
 
-	public String reset(String node) {
-		if (pool.containsKey(node)) {
-			pool.get(node).kill();
+	public Node reset(String host) {
+		if (pool.containsKey(host)) {
+			Node node = pool.get(host);
+			node.kill();
 			return node;
 		}
 
 		return null;
 	}
 
-	public String purge(String node) {
-		blockList.put(node, System.currentTimeMillis());
-		if (pool.containsKey(node)) {
-			pool.get(node).kill();
-			pool.remove(node);
+	public Node purge(String host) {
+		blockList.put(host, System.currentTimeMillis());
+		if (pool.containsKey(host)) {
+			Node node = pool.get(host);
+			node.kill();
+			pool.remove(host);
 			return node;
 		}
 
@@ -73,6 +75,8 @@ public class NodePool {
 	
 	
 	public boolean isInBlockList(String host) {
+		if(host == null || host.isEmpty())
+			return false;
 		return blockList.containsKey(host);
 	}
 	

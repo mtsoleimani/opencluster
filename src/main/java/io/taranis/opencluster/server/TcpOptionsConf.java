@@ -14,6 +14,15 @@ public class TcpOptionsConf {
 	
 	protected boolean tcpQuickAck;
 
+	public TcpOptionsConf setDefault() {
+		tcpBacklog = 1024;
+		tcpTxBuffer = 1024;
+		tcpRxBuffer = 1024;
+		tcpFastOpen = true;
+		tcpNoDelay = true;
+		tcpQuickAck = true;
+		return this;
+	}
 
 	public int getTcpBacklog() {
 		return tcpBacklog;

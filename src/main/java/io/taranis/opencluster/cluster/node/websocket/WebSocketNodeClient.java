@@ -54,7 +54,8 @@ public class WebSocketNodeClient implements NodeClient, ConnectionListener {
 		this.host = host;
 		this.port = port;
 		logger.debug(String.format("connecting to %s:%d", host, port));
-		client = new WebSocketClient(vertx, host, port, this);	
+		client = new WebSocketClient(vertx, host, port, this);
+
 		client.start(new Promise<Void>() {
 			
 			@Override
@@ -110,7 +111,6 @@ public class WebSocketNodeClient implements NodeClient, ConnectionListener {
 
 	@Override
 	public void onFailure(Throwable throwable, String host, int port) {
-		throwable.printStackTrace();
 		listener.onNodeFailure(this);
 	}
 

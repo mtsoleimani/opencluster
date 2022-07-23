@@ -20,6 +20,8 @@ public class ClusterBuilder {
 	
 	private TcpOptionsConf tcpOptionsConf;
 	
+	private String myHost;
+	
 	public static ClusterBuilder newInstance() {
 		return new ClusterBuilder();
 	}
@@ -31,6 +33,11 @@ public class ClusterBuilder {
 
 	public ClusterBuilder addHost(String host) {
 		hosts.add(host);
+		return this;
+	}
+	
+	public ClusterBuilder withMyHost(String myHost) {
+		this.myHost = myHost;
 		return this;
 	}
 
@@ -56,6 +63,7 @@ public class ClusterBuilder {
 
 	
 	public Cluster build() {
+		hosts.remove(myHost);
 		return new ClusterManager(port, transportType, tcpOptionsConf, nodeTimeout, heartBeatInterval, hosts);
 	}
 	
