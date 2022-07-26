@@ -64,7 +64,7 @@ public class ClusterBuilder {
 	
 	public Cluster build() {
 		hosts.remove(myHost);
-		return new ClusterManager(port, transportType, tcpOptionsConf, nodeTimeout, heartBeatInterval, hosts);
+		return new ClusterManager(port, transportType, tcpOptionsConf, nodeTimeout, heartBeatInterval, hosts, myHost);
 	}
 	
 

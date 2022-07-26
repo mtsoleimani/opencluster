@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ClusterListener {
 
-	public void onDiscovery(List<String> hosts);
+	public void onDiscovery(String source, List<String> hosts);
 
 	public void onJoinedNode(String host);
 	

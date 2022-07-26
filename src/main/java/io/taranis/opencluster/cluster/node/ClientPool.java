@@ -1,6 +1,8 @@
 package io.taranis.opencluster.cluster.node;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +12,8 @@ import io.vertx.core.Vertx;
 
 public class ClientPool implements NodeListener {
 
+	private final String myHost;
+	
 	private final NodePool nodePool;
 	
 	private final int heartBeatInterval; 
@@ -18,13 +22,21 @@ public class ClientPool implements NodeListener {
 	
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 	
-	public ClientPool(Vertx vertx, int port, int timeoutMinutes, int heartBeatInterval) {
+	
+	private final Map<String, Long> lastHeartBeat = new ConcurrentHashMap<>();
+	
+	
+	public ClientPool(Vertx vertx, int port, int timeoutMinutes, int heartBeatInterval, String myHost) {
 		nodePool = new NodePool(vertx, timeoutMinutes);
 		this.port = port;
 		this.heartBeatInterval = heartBeatInterval;
+		this.myHost = myHost;
 	}
 	
 	public void join(String host) {
+		if(host == null || host.isEmpty() || host.equals(myHost))
+			return;
+		
 		
 		try {
 			
@@ -36,8 +48,12 @@ public class ClientPool implements NodeListener {
 				return;
 			}
 			
+			if(!canPing(host))
+				return;
+			
 			node.getNodeClient().heartbeat(nodePool.toList());
 			nodePool.refresh(node.getNodeClient());
+			lastHeartBeat.put(host, System.currentTimeMillis());
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -47,12 +63,18 @@ public class ClientPool implements NodeListener {
 	}
 	
 	public void join(List<String> hosts) {
+		if(hosts == null || hosts.isEmpty())
+			return;
+		
 		hosts.stream().forEach(host -> {
 			join(host);
 		});
 	}
 	
 	public void leave(String host, boolean silent) {
+		if(host == null || host.isEmpty())
+			return;
+		
 		nodePool.purge(host);
 		Node node = nodePool.get(host);
 		if(silent || node == null)
@@ -73,6 +95,10 @@ public class ClientPool implements NodeListener {
 	public void onHearbeat(NodeClient node, List<String> neighbors) {
 		if(!nodePool.isInBlockList(node.host()))
 			nodePool.refresh(node);
+		
+		if(neighbors == null || neighbors.isEmpty())
+			return;
+		
 		neighbors.stream().filter(host -> !nodePool.isInBlockList(host)).forEach(host -> {
 			join(host);			
 		});
@@ -85,7 +111,19 @@ public class ClientPool implements NodeListener {
 		heatbeat(node);
 	}
 	
+	
+	private boolean canPing(String host) {
+		if(lastHeartBeat.containsKey(host))
+			return ( ( System.currentTimeMillis() - lastHeartBeat.get(host))/1000 >= heartBeatInterval );
+		return true;
+	}
+	
+	
 	private void heatbeat(NodeClient node) {
+		
+		if(!canPing(node.host()))
+			return;
+		
 		try {
 			if(!nodePool.get(node.host()).isConnected())
 				return;
@@ -93,6 +131,7 @@ public class ClientPool implements NodeListener {
 			node.heartbeat(nodePool.toList());
 			nodePool.refresh(node);
 			schedule(node);
+			lastHeartBeat.put(node.host(), System.currentTimeMillis());
 		} catch (Exception e) {
 			e.printStackTrace();
 			onNodeFailure(node);

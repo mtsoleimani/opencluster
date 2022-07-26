@@ -7,9 +7,12 @@ import io.vertx.core.net.SocketAddress;
 public class ClientWebSocketTransport implements Transport {
 
 	private final WebSocket socket;
+	
+	private String host;
 
 	public ClientWebSocketTransport(WebSocket socket) {
 		this.socket = socket;
+		this.host = socket.remoteAddress().host();
 	}
 
 	@Override
@@ -24,7 +27,7 @@ public class ClientWebSocketTransport implements Transport {
 
 	@Override
 	public String host() {
-		return socket.remoteAddress().host();
+		return host;
 	}
 
 	@Override

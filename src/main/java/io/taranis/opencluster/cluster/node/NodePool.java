@@ -24,7 +24,9 @@ public class NodePool {
 	
 	public Node newIfExistsGet(String host) {
 		Node node = pool.putIfAbsent(host, new Node(ClientNodeFactory.get(vertx)));
-		return (node == null) ? pool.get(host) : node;
+		node = (node == null) ? pool.get(host) : node;
+		node.setAddress(host);
+		return node;
 	}
 	
 	public String refresh(NodeClient nodeClient) {
@@ -65,6 +67,9 @@ public class NodePool {
 	}
 
 	public List<String> toList() {
+		if(pool.size() == 0)
+			return null;
+		
 		return pool.entrySet().stream()
 				.map(keyValue -> keyValue.getValue())
 				.filter(node -> node.isAlive(timeoutSeconds))

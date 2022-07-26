@@ -23,10 +23,10 @@ public class ClusterManager implements Cluster, ClusterListener {
 	private Set<String> seeds;
 	
 	public ClusterManager(int port, TransportType transportType, TcpOptionsConf tcpOptionsConf, 
-			int nodeTimeout, int heartBeatInterval, Set<String> seeds) {
+			int nodeTimeout, int heartBeatInterval, Set<String> seeds, String myHost) {
 		ClientNodeFactory.setTransportType(transportType);
 		this.server = new ClusterServer(vertx, port, transportType, tcpOptionsConf, this);
-		this.clientPool = new ClientPool(vertx, port, nodeTimeout, heartBeatInterval);
+		this.clientPool = new ClientPool(vertx, port, nodeTimeout, heartBeatInterval, myHost);
 		this.seeds = seeds;
 	}
 	
@@ -69,8 +69,10 @@ public class ClusterManager implements Cluster, ClusterListener {
 
 
 	@Override
-	public void onDiscovery(List<String> hosts) {
-		clientPool.join(hosts);
+	public void onDiscovery(String host, List<String> hosts) {
+		clientPool.join(host);
+		if(hosts != null && !hosts.isEmpty())
+			clientPool.join(hosts);
 	}
 
 

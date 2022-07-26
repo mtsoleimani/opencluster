@@ -20,6 +20,7 @@ public class ClusterServer implements MessageHandler {
 	
 	public ClusterServer(Vertx vertx, int port, TransportType transportType, 
 			TcpOptionsConf tcpOptionsConf, ClusterListener listener) {
+		this.listener = listener;
 		this.server = createServer(port, transportType, tcpOptionsConf, vertx);
 	}
 	
@@ -50,14 +51,17 @@ public class ClusterServer implements MessageHandler {
 	public void onIncomingMessage(Message message, Transport transport) {
 		switch (message.type()) {
 		case HEARTBEAT: 
-			listener.onDiscovery(((HeartBeatMessage) message).getNodes());
+			sendAck(message, transport);
+			listener.onDiscovery(transport.host(), ((HeartBeatMessage) message).getNodes());
 			break;
 
 		case DATA:
+			sendAck(message, transport);
 			listener.onReceiveData(transport.host(), message.key(), message.value());
 			break;
 			
 		case LEAVE:
+			sendAck(message, transport);
 			listener.onLeftNode(transport.host());
 			try {
 				transport.close();
@@ -70,7 +74,7 @@ public class ClusterServer implements MessageHandler {
 			break;
 		}
 		
-		sendAck(message, transport);
+		
 	}
 
 	

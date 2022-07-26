@@ -30,7 +30,8 @@ public abstract class MessageBase implements Message {
 	@Override
 	public String toString() {
 		JsonObject json = new JsonObject()
-				.put(Metadata.TYPE, type().ordinal());
+				.put(Metadata.TYPE, type().ordinal())
+				.put(Metadata.ID, id);
 		
 		if(key != null)
 			json.put(Metadata.KEY, key);

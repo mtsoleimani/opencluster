@@ -62,7 +62,6 @@ public class JsonMessageParser implements Metadata {
 		if(!json.containsKey(VALUE))
 			return new HeartBeatMessage();
 		
-		
 		String[] hosts = json.getString(VALUE).trim().split(",");
 		if(hosts == null || hosts.length == 0)
 			return new HeartBeatMessage();

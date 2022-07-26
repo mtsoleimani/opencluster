@@ -1,6 +1,5 @@
 package io.taranis.opencluster.cluster.node.websocket;
 
-import java.nio.channels.ClosedChannelException;
 
 import io.taranis.opencluster.cluster.node.ConnectionListener;
 import io.taranis.opencluster.server.transport.ClientWebSocketTransport;
@@ -53,6 +52,7 @@ public class WebSocketClient extends AbstractVerticle {
         		connectionListener.onConnected(host, port);
         		
         		webSocket.textMessageHandler(text -> {
+        			System.err.println(text);
         			connectionListener.onData(text, transport);
         		});
         		

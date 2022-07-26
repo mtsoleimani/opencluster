@@ -117,6 +117,7 @@ public class WebSocketServer extends BasicServer implements Handler<ServerWebSoc
 			logger.debug("incoming message " + transport.toString() + " from: " + transport.toString());
 
 			try {
+				System.err.println(text);
 				handleMessage(JsonMessageParser.parse(text), transport);
 			} catch (InvalidMessageException e) {
 				logger.debug("invalid message " + text + " from: " + transport.toString());

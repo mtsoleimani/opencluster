@@ -12,8 +12,10 @@ public class HeartBeatMessage extends MessageBase {
 	}
 	
 	public HeartBeatMessage(List<String> nodes) {
-		this.value = String.join(",", nodes);
-		this.nodes = nodes;
+		if(nodes != null && !nodes.isEmpty()) {
+			this.value = String.join(",", nodes);
+			this.nodes = nodes;
+		}
 	}
 	
 	@Override

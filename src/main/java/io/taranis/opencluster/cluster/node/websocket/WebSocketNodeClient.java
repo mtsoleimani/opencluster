@@ -122,14 +122,17 @@ public class WebSocketNodeClient implements NodeClient, ConnectionListener {
 		switch (message.type()) {
 		
 		case HEARTBEAT:
+			sendAck(message, transport);
 			listener.onHearbeat(this, ((HeartBeatMessage)message).getNodes());
 			break;
 			
 		case DATA:
+			sendAck(message, transport);
 			listener.onReceiveData(this, message.key(), message.value());
 			break;
 			
 		case LEAVE:
+			sendAck(message, transport);
 			listener.onLeftNode(transport.host());
 			break;
 			
@@ -141,7 +144,6 @@ public class WebSocketNodeClient implements NodeClient, ConnectionListener {
 			break;
 		}
 		
-		sendAck(message, transport);
 	}
 	
 	
@@ -151,6 +153,7 @@ public class WebSocketNodeClient implements NodeClient, ConnectionListener {
 		} catch (Exception e) {
 			try {
 				client.stop();
+				System.err.println("--------sendAck-----------");
 				listener.onNodeFailure(this);
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -169,6 +172,7 @@ public class WebSocketNodeClient implements NodeClient, ConnectionListener {
 			e.printStackTrace();
 			try {
 				client.stop();
+				System.err.println("--------onData-----------");
 				listener.onNodeFailure(this);
 			} catch (Exception ex) {
 				ex.printStackTrace();
