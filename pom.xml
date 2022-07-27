@@ -3,7 +3,7 @@
 
 	<groupId>io.taranis</groupId>
 	<artifactId>opencluster</artifactId>
-	<version>0.0.1-dev</version>
+	<version>0.0.2-dev</version>
 	<packaging>jar</packaging>
 	<inceptionYear>2022</inceptionYear>
 
