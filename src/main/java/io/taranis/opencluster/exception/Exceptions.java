@@ -1,4 +1,4 @@
-package io.taranis.opencluster.common.utils;
+package io.taranis.opencluster.exception;
 
 
 import javax.annotation.Nonnull;

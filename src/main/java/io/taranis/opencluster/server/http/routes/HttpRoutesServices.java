@@ -2,6 +2,8 @@ package io.taranis.opencluster.server.http.routes;
 
 public interface HttpRoutesServices extends HttpRoutesBase {
 
+	public static final String ROUTE_DISCOVER_ME = ROUTE_BASE + "/v1/service/discoverme";
+	
 	public static final String ROUTE_REGISTER_SERVICE = ROUTE_BASE + "/v1/service/register";
 	
 	public static final String ROUTE_DEREGISTER_SERVICE = ROUTE_BASE + "/v1/service/deregister";

@@ -1,4 +1,4 @@
-package io.taranis.opencluster.core.request;
+package io.taranis.opencluster.server.http.request;
 
 
 import io.taranis.opencluster.common.utils.StringUtils;
