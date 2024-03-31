@@ -7,10 +7,11 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.taranis.opencluster.cluster.MessageHandler;
+import io.taranis.opencluster.common.configs.TcpOptionsConf;
 import io.taranis.opencluster.exception.InvalidMessageException;
-import io.taranis.opencluster.messages.Message;
-import io.taranis.opencluster.messages.parser.JsonMessageParser;
+import io.taranis.opencluster.server.messages.Message;
+import io.taranis.opencluster.server.messages.MessageHandler;
+import io.taranis.opencluster.server.messages.MessageParser;
 import io.taranis.opencluster.server.transport.Transport;
 import io.taranis.opencluster.server.transport.WebSocketTransport;
 import io.vertx.core.Handler;
@@ -24,18 +25,23 @@ import io.vertx.core.net.PemKeyCertOptions;
 public class WebSocketServer extends BasicServer implements Handler<ServerWebSocket> {
 
 	private HttpServer httpServer;
-	private final Logger logger = (Logger) LoggerFactory.getLogger(WebSocketServer.class);
+	private final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
 
+	
+	private final MessageParser messageParser;
+	
 	WebSocketServer(Vertx vertx, String host, int port,
-			TcpOptionsConf tcpOptionsConf, MessageHandler messageHandler) {
+			TcpOptionsConf tcpOptionsConf, MessageHandler messageHandler, MessageParser messageParser) {
 		super(vertx, host, port, tcpOptionsConf, messageHandler);
+		this.messageParser = messageParser;
 	}
 
 
 	WebSocketServer(Vertx vertx, String host, int port,
 			TcpOptionsConf tcpOptionsConf, String pemCert, String pemKey,
-			MessageHandler messageHandler) {
+			MessageHandler messageHandler, MessageParser messageParser) {
 		super(vertx, host, port, tcpOptionsConf, pemCert, pemKey, messageHandler);
+		this.messageParser = messageParser;
 	}
 
 
@@ -75,7 +81,7 @@ public class WebSocketServer extends BasicServer implements Handler<ServerWebSoc
 
 		httpServer.listen(port, host, res -> {
 			if(res.succeeded()) {
-				logger.debug("WebSocket Server: successful listening: " + host + ":" + port ) ;
+				logger.debug("WebSocket Server: successful listening:{}:{}", host, port ) ;
 			} else {
 				logger.error("WebSocks Server: error in port binding: \" + port");
 				logger.error("exiting WebSocks Server");
@@ -114,13 +120,12 @@ public class WebSocketServer extends BasicServer implements Handler<ServerWebSoc
 
 		webSocket.textMessageHandler(text -> {
 
-			logger.debug("incoming message " + transport.toString() + " from: " + transport.toString());
+			logger.debug("incoming message {} from: {}", transport.toString(), transport);
 
 			try {
-				System.err.println(text);
-				handleMessage(JsonMessageParser.parse(text), transport);
+				handleMessage(messageParser.parse(text), transport);
 			} catch (InvalidMessageException e) {
-				logger.debug("invalid message " + text + " from: " + transport.toString());
+				logger.debug("invalid message {} from: {}", text, transport);
 				messageHandler.onFailure(e, transport);
 				return;
 			}

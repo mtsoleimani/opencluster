@@ -1,7 +1,8 @@
 package io.taranis.opencluster.server;
 
-import io.taranis.opencluster.cluster.MessageHandler;
-import io.taranis.opencluster.messages.Message;
+import io.taranis.opencluster.common.configs.TcpOptionsConf;
+import io.taranis.opencluster.server.messages.Message;
+import io.taranis.opencluster.server.messages.MessageHandler;
 import io.taranis.opencluster.server.transport.Transport;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;

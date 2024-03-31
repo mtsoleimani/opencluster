@@ -1,6 +1,8 @@
 package io.taranis.opencluster.server;
 
-import io.taranis.opencluster.cluster.MessageHandler;
+import io.taranis.opencluster.common.configs.TcpOptionsConf;
+import io.taranis.opencluster.server.messages.MessageHandler;
+import io.taranis.opencluster.server.messages.MessageParser;
 import io.vertx.core.Vertx;
 
 public class BasicServerBuilder {
@@ -21,5 +23,6 @@ public class BasicServerBuilder {
 	
 	protected String pemKey;
 	
+	protected MessageParser messageParser;
 	
 }
