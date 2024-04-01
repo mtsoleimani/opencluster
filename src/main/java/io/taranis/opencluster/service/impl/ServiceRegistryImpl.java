@@ -57,10 +57,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 	}
 
 	@Override
-	public Optional<List<Service>> filter(String clusterName, List<String> tags, String serviceName)
-			throws RuntimeException {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+	public Optional<List<Service>> filter(String clusterName, List<String> tags, String serviceName) throws RuntimeException {
+		return serviceRepository.filter(serviceName, tags, clusterName);
 	}
 
 

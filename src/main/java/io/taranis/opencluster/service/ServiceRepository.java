@@ -32,4 +32,6 @@ public interface ServiceRepository {
 	
 	public Optional<List<Service>> getByTags(List<String> tags, String clusterName);
 	
+	public Optional<List<Service>> filter(String serviceName, List<String> tags, String clusterName);
+	
 }

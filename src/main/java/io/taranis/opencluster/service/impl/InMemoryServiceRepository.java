@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.taranis.opencluster.common.utils.StringUtils;
 import io.taranis.opencluster.service.Service;
@@ -148,9 +149,7 @@ public class InMemoryServiceRepository implements ServiceRepository {
 			return Optional.empty();
 		
 		List<Service> list = this.services.entrySet().stream().filter(i -> i.getValue().getName().equals(name)).map(Entry::getValue).toList();
-		if(list == null || list.isEmpty())
-			return Optional.empty();
-		return Optional.of(list);
+		return (list == null || list.isEmpty()) ? Optional.empty() : Optional.of(list);
 	}
 
 
@@ -164,9 +163,7 @@ public class InMemoryServiceRepository implements ServiceRepository {
 				.filter(i -> i.getValue().getClusterOptions() != null &&  clusterName.equals(i.getValue().getClusterOptions().getClusterName()))
 				.filter(i -> i.getValue().getName().equals(name))
 				.map(Entry::getValue).toList();
-		if(list == null || list.isEmpty())
-			return Optional.empty();
-		return Optional.of(list);
+		return (list == null || list.isEmpty()) ? Optional.empty() : Optional.of(list);
 	}
 
 
@@ -188,9 +185,7 @@ public class InMemoryServiceRepository implements ServiceRepository {
 				.stream()
 				.filter(i -> isMember(tagSet, i.getValue().getTags()))
 				.map(Entry::getValue).toList();
-		if(list == null || list.isEmpty())
-			return Optional.empty();
-		return Optional.of(list);
+		return (list == null || list.isEmpty()) ? Optional.empty() : Optional.of(list);
 	}
 
 
@@ -205,9 +200,27 @@ public class InMemoryServiceRepository implements ServiceRepository {
 				.filter(i -> i.getValue().getClusterOptions() != null &&  clusterName.equals(i.getValue().getClusterOptions().getClusterName()))
 				.filter(i -> isMember(tagSet, i.getValue().getTags()))
 				.map(Entry::getValue).toList();
-		if(list == null || list.isEmpty())
-			return Optional.empty();
-		return Optional.of(list);
+		return (list == null || list.isEmpty()) ? Optional.empty() : Optional.of(list);
+	}
+
+
+	@Override
+	public Optional<List<Service>> filter(String serviceName, List<String> tags, String clusterName) {
+		Stream<Entry<String, Service>> stream = this.services.entrySet().stream();
+		
+		if(tags != null && !tags.isEmpty()) {
+			Set<String> tagSet = tags.stream().collect(Collectors.toSet());
+			stream = stream.filter(i -> isMember(tagSet, i.getValue().getTags()));
+		}
+		
+		if(!StringUtils.isNullOrEmpty(clusterName))
+			stream = stream.filter(i -> i.getValue().getClusterOptions() != null &&  clusterName.equals(i.getValue().getClusterOptions().getClusterName()));
+		
+		if(!StringUtils.isNullOrEmpty(serviceName))
+			stream = stream.filter(i -> i.getValue().getName().equals(serviceName));
+		
+		List<Service> list = stream.map(Entry::getValue).toList();
+		return (list == null || list.isEmpty()) ? Optional.empty() : Optional.of(list);
 	}
 
 }
