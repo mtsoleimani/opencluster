@@ -10,7 +10,7 @@ public class HttpConf extends ServerConf  {
 
 	@Override
 	public int defaultPort() {
-		return 2000;
+		return 3000;
 	}
 	
 	

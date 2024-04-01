@@ -78,7 +78,6 @@ public class Launcher {
 
 			if (httpServerLauncher != null)
 				httpServerLauncher.shutdown();
-
 		}));
 	}
 }

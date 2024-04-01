@@ -67,7 +67,6 @@ public class HttpServer extends AbstractVerticle {
 				    .setCertPaths(Arrays.asList(httpConf.getServerCertPath())
 				    );
 			
-			
 			options.setSsl(true).setPemKeyCertOptions(keyCertOptions);
 			
 			server = vertx.createHttpServer(options).requestHandler(router).listen(httpConf.getPort(), result -> {

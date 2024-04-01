@@ -8,6 +8,7 @@ import java.util.Optional;
 import io.taranis.opencluster.service.Service;
 import io.taranis.opencluster.service.ServiceRegistry;
 import io.taranis.opencluster.service.ServiceRepository;
+import io.taranis.opencluster.service.ServiceStatus;
 
 public class ServiceRegistryImpl implements ServiceRegistry {
 
@@ -20,6 +21,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 	@Override
 	public Service register(Service service) throws RuntimeException {
 		service.setRegisteredAt(LocalDateTime.now(ZoneId.of("UTC")));
+		service.setLastSeen(LocalDateTime.now(ZoneId.of("UTC")));
+		service.setServiceStatus(ServiceStatus.HEALTHY);
 		return serviceRepository.put(service);
 	}
 
