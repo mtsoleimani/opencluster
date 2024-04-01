@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import io.taranis.opencluster.common.utils.Utils;
+import io.taranis.opencluster.common.utils.HttpUtils;
 import io.vertx.ext.web.RoutingContext;
 
 public class ServiceInputValidator {
@@ -19,7 +19,7 @@ public class ServiceInputValidator {
 	
 	public static Optional<RegisterServiceRequest> parseAndValidateRegisterServiceRequest(RoutingContext routingContext) {
 		try {
-			RegisterServiceRequest obj = Utils.getJson(routingContext).mapTo(RegisterServiceRequest.class);
+			RegisterServiceRequest obj = HttpUtils.getJson(routingContext).mapTo(RegisterServiceRequest.class);
 			return obj.validate() ? Optional.of(obj) : Optional.empty();
 		} catch(Exception e) {
 			logger.warn(e.getLocalizedMessage(), e);
@@ -30,7 +30,7 @@ public class ServiceInputValidator {
 
 	public static Optional<UnregisterServiceRequest> parseAndValidateUnregisterServiceRequest(RoutingContext routingContext) {
 		try {
-			UnregisterServiceRequest obj = Utils.getJson(routingContext).mapTo(UnregisterServiceRequest.class);
+			UnregisterServiceRequest obj = HttpUtils.getJson(routingContext).mapTo(UnregisterServiceRequest.class);
 			return obj.validate() ? Optional.of(obj) : Optional.empty();
 		} catch(Exception e) {
 			logger.warn(e.getLocalizedMessage(), e);
@@ -66,4 +66,19 @@ public class ServiceInputValidator {
 
 		return Optional.empty();
 	}
+	
+	public static Optional<ServicesDiscoveryRequest> parseAndValidateServicesDiscoveryRequest(RoutingContext routingContext) {
+		try {
+			String serviceName = routingContext.request().getParam("serviceName");
+			String clusterName = routingContext.request().getParam("clusterName");
+			
+			ServicesDiscoveryRequest obj = new ServicesDiscoveryRequest(serviceName, clusterName);
+			return obj.validate() ? Optional.of(obj) : Optional.empty();
+		} catch(Exception e) {
+			logger.warn(e.getLocalizedMessage(), e);
+		}
+
+		return Optional.empty();
+	}
+	
 }

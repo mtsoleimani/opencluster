@@ -13,4 +13,6 @@ public interface HttpServiceHandler {
 	public void handleGetServicesRequest(RoutingContext routingContext);
 	
 	public void handleDiscoverMeRequest(RoutingContext routingContext);
+	
+	public void handleServiceDiscoveryRequest(RoutingContext routingContext);
 }

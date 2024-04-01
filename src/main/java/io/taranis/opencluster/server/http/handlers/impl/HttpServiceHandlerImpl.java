@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.taranis.opencluster.common.utils.StringUtils;
-import io.taranis.opencluster.common.utils.Utils;
+import io.taranis.opencluster.common.utils.HttpUtils;
 import io.taranis.opencluster.exception.InvalidMessageException;
 import io.taranis.opencluster.exception.NotFoundException;
 import io.taranis.opencluster.server.http.HttpPostman;
@@ -16,6 +16,7 @@ import io.taranis.opencluster.server.http.request.GetServicesByIdRequest;
 import io.taranis.opencluster.server.http.request.GetServicesRequest;
 import io.taranis.opencluster.server.http.request.RegisterServiceRequest;
 import io.taranis.opencluster.server.http.request.ServiceInputValidator;
+import io.taranis.opencluster.server.http.request.ServicesDiscoveryRequest;
 import io.taranis.opencluster.server.http.request.UnregisterServiceRequest;
 import io.taranis.opencluster.service.Service;
 import io.taranis.opencluster.service.ServiceRegistry;
@@ -43,7 +44,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 
 		try {
 			if(StringUtils.isNullOrEmpty(result.get().getAddress()))
-				result.get().setAddress(Utils.getRemoteHost(routingContext));
+				result.get().setAddress(HttpUtils.getRemoteHost(routingContext));
 
 			Service service = serviceRegistry.register(result.get());
 			HttpPostman.sendJson(routingContext, JsonObject.mapFrom(service));
@@ -116,7 +117,28 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 
 	@Override
 	public void handleDiscoverMeRequest(RoutingContext routingContext) {
-		HttpPostman.sendJson(routingContext, new JsonObject().put("ipaddress", Utils.getRemoteHost(routingContext)));		
+		HttpPostman.sendJson(routingContext, new JsonObject().put("ipaddress", HttpUtils.getRemoteHost(routingContext)));		
+	}
+
+	@Override
+	public void handleServiceDiscoveryRequest(RoutingContext routingContext) {
+		Optional<ServicesDiscoveryRequest> result = ServiceInputValidator.parseAndValidateServicesDiscoveryRequest(routingContext);
+		if(result.isEmpty()) {
+			HttpPostman.handleException(routingContext, new InvalidMessageException());
+			return;
+		}	
+		
+		try {
+			
+			Optional<List<Service>> list = serviceRegistry.getByServiceName(result.get().getClusterName(), result.get().getServiceName());
+			if(list.isEmpty())
+				throw new NotFoundException();
+			
+			HttpPostman.sendJson(routingContext, new JsonObject().put("list", list.get()));
+		} catch (Exception e) {
+			logger.info(e.getLocalizedMessage(), e);
+			HttpPostman.handleException(routingContext, e);
+		}
 	}
 
 }
