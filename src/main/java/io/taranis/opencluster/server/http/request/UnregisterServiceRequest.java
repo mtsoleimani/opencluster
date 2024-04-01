@@ -1,8 +1,8 @@
 package io.taranis.opencluster.server.http.request;
 
 import io.taranis.opencluster.common.utils.StringUtils;
-import io.taranis.opencluster.service.ClusterOptions;
-import io.taranis.opencluster.service.Service;
+import io.taranis.opencluster.core.model.ClusterOptions;
+import io.taranis.opencluster.core.model.Service;
 
 public class UnregisterServiceRequest extends Service implements InputValidator {
 

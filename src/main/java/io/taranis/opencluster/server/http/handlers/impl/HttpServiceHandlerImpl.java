@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.taranis.opencluster.common.utils.StringUtils;
+import io.taranis.opencluster.core.SystemCoordinator;
+import io.taranis.opencluster.core.model.Service;
 import io.taranis.opencluster.common.utils.HttpUtils;
 import io.taranis.opencluster.exception.InvalidMessageException;
 import io.taranis.opencluster.exception.NotFoundException;
@@ -16,10 +18,9 @@ import io.taranis.opencluster.server.http.request.GetServicesByIdRequest;
 import io.taranis.opencluster.server.http.request.GetServicesRequest;
 import io.taranis.opencluster.server.http.request.RegisterServiceRequest;
 import io.taranis.opencluster.server.http.request.ServiceInputValidator;
+import io.taranis.opencluster.server.http.request.ServicePingRequest;
 import io.taranis.opencluster.server.http.request.ServicesDiscoveryRequest;
 import io.taranis.opencluster.server.http.request.UnregisterServiceRequest;
-import io.taranis.opencluster.service.Service;
-import io.taranis.opencluster.service.ServiceRegistry;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -27,10 +28,10 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 	
 	private final Logger logger = LoggerFactory.getLogger(HttpServiceHandlerImpl.class);
 	
-	private final ServiceRegistry serviceRegistry;
+	private final SystemCoordinator systemCoordinator;
 	
-	public HttpServiceHandlerImpl(ServiceRegistry serviceRegistry) {
-		this.serviceRegistry = serviceRegistry;
+	public HttpServiceHandlerImpl(SystemCoordinator systemCoordinator) {
+		this.systemCoordinator = systemCoordinator;
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 			if(StringUtils.isNullOrEmpty(result.get().getAddress()))
 				result.get().setAddress(HttpUtils.getRemoteHost(routingContext));
 
-			Service service = serviceRegistry.register(result.get());
+			Service service = systemCoordinator.registerService(result.get());
 			HttpPostman.sendJson(routingContext, JsonObject.mapFrom(service));
 		} catch (Exception e) {
 			logger.info(e.getLocalizedMessage(), e);
@@ -63,7 +64,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 		}
 		
 		try {
-			Optional<Service> service = serviceRegistry.deregister(result.get());
+			Optional<Service> service = systemCoordinator.unregisterService(result.get());
 			if(service.isEmpty())
 				throw new NotFoundException();
 			
@@ -75,7 +76,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 	}
 
 	@Override
-	public void handleGetServicesByIdRequest(RoutingContext routingContext) {
+	public void handleGetServiceByIdRequest(RoutingContext routingContext) {
 		Optional<GetServicesByIdRequest> result = ServiceInputValidator.parseAndValidateGetServicesByIdRequest(routingContext);
 		if(result.isEmpty()) {
 			HttpPostman.handleException(routingContext, new InvalidMessageException());
@@ -83,7 +84,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 		}	
 		
 		try {
-			Optional<Service> service = serviceRegistry.getByServiceId(result.get().getId());
+			Optional<Service> service = systemCoordinator.getService(result.get().getId());
 			if(service.isEmpty())
 				throw new NotFoundException();
 			
@@ -104,7 +105,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 		
 		try {
 			
-			Optional<List<Service>> list = serviceRegistry.filter(result.get().getClusterName(), result.get().getTags(), result.get().getServiceName());
+			Optional<List<Service>> list = systemCoordinator.getServices(result.get().getClusterName(), result.get().getTags(), result.get().getServiceName());
 			if(list.isEmpty())
 				throw new NotFoundException();
 			
@@ -130,7 +131,7 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 		
 		try {
 			
-			Optional<List<Service>> list = serviceRegistry.getByServiceName(result.get().getClusterName(), result.get().getServiceName());
+			Optional<List<Service>> list = systemCoordinator.serviceDiscovery(result.get().getClusterName(), result.get().getServiceName());
 			if(list.isEmpty())
 				throw new NotFoundException();
 			
@@ -139,6 +140,18 @@ public class HttpServiceHandlerImpl implements HttpServiceHandler {
 			logger.info(e.getLocalizedMessage(), e);
 			HttpPostman.handleException(routingContext, e);
 		}
+	}
+
+	@Override
+	public void handlePingServiceRequest(RoutingContext routingContext) {
+		Optional<ServicePingRequest> result = ServiceInputValidator.parseAndValidateServicePingRequest(routingContext);
+		if(result.isEmpty()) {
+			HttpPostman.handleException(routingContext, new InvalidMessageException());
+			return;
+		}	
+		
+		HttpPostman.sendOK(routingContext);
+		systemCoordinator.onKeepAlive(result.get().getId(), result.get().getClusterName());
 	}
 
 }

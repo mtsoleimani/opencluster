@@ -54,9 +54,9 @@ public class ServiceInputValidator {
 	
 	public static Optional<GetServicesRequest> parseAndValidateGetServicesRequest(RoutingContext routingContext) {
 		try {
-			String serviceName = routingContext.request().getParam("serviceName");
+			String serviceName = routingContext.request().getParam("name");
 			String tags = routingContext.request().getParam("tags");
-			String clusterName = routingContext.request().getParam("clusterName");
+			String clusterName = routingContext.request().getParam("cluster");
 			
 			GetServicesRequest obj = new GetServicesRequest(serviceName, tags, clusterName);
 			return obj.validate() ? Optional.of(obj) : Optional.empty();
@@ -69,10 +69,24 @@ public class ServiceInputValidator {
 	
 	public static Optional<ServicesDiscoveryRequest> parseAndValidateServicesDiscoveryRequest(RoutingContext routingContext) {
 		try {
-			String serviceName = routingContext.request().getParam("serviceName");
-			String clusterName = routingContext.request().getParam("clusterName");
+			String serviceName = routingContext.request().getParam("name");
+			String clusterName = routingContext.request().getParam("cluster");
 			
 			ServicesDiscoveryRequest obj = new ServicesDiscoveryRequest(serviceName, clusterName);
+			return obj.validate() ? Optional.of(obj) : Optional.empty();
+		} catch(Exception e) {
+			logger.warn(e.getLocalizedMessage(), e);
+		}
+
+		return Optional.empty();
+	}
+	
+	public static Optional<ServicePingRequest> parseAndValidateServicePingRequest(RoutingContext routingContext) {
+		try {
+			String serviceId = routingContext.request().getParam("id");
+			String clusterName = routingContext.request().getParam("cluster");
+			
+			ServicePingRequest obj = new ServicePingRequest(serviceId, clusterName);
 			return obj.validate() ? Optional.of(obj) : Optional.empty();
 		} catch(Exception e) {
 			logger.warn(e.getLocalizedMessage(), e);

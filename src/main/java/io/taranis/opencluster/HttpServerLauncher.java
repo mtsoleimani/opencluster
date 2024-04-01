@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.taranis.opencluster.common.configs.HttpConf;
 import io.taranis.opencluster.common.configs.TcpOptionsConf;
+import io.taranis.opencluster.core.SystemCoordinator;
 import io.taranis.opencluster.server.http.AppHttpMethod;
 import io.taranis.opencluster.server.http.HttpServerBuilder;
 import io.taranis.opencluster.server.http.VertxCallable;
@@ -18,14 +19,14 @@ public class HttpServerLauncher {
 	
 	private final Logger logger = LoggerFactory.getLogger(HttpServerLauncher.class);
 	
-	private final Context context;
+	private final SystemCoordinator systemCoordinator;
 	
 	private HttpServerBuilder httpServerBuilder;
 	
 	private final IVertxAuthHandler authHandler;
 	
-	public HttpServerLauncher(Context context, IVertxAuthHandler authHandler) {
-		this.context = context;
+	public HttpServerLauncher(SystemCoordinator systemCoordinator, IVertxAuthHandler authHandler) {
+		this.systemCoordinator = systemCoordinator;
 		this.authHandler = authHandler;
 	}
 	
@@ -45,7 +46,7 @@ public class HttpServerLauncher {
 	}
 	
 	private HttpServerBuilder initServiceHttpRoutes(final HttpServerBuilder httpServerBuilder, final IVertxAuthHandler authHandler) {
-		HttpServiceHandler handler = new HttpServiceHandlerImpl(context.getServiceRegistry());
+		HttpServiceHandler handler = new HttpServiceHandlerImpl(systemCoordinator);
 
 		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.POST, HttpRoutesServices.ROUTE_REGISTER_SERVICE,
 			handler::handleRegisterServiceRequest, authHandler::authenticate));
@@ -57,13 +58,16 @@ public class HttpServerLauncher {
 				handler::handleDiscoverMeRequest, null));
 		
 		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.GET, HttpRoutesServices.ROUTE_FETCH_SERVICE_DETAILS,
-				handler::handleGetServicesByIdRequest, authHandler::authenticate));
+				handler::handleGetServiceByIdRequest, authHandler::authenticate));
 		
 		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.GET, HttpRoutesServices.ROUTE_FETCH_SERVICES_LIST,
 				handler::handleGetServicesRequest, authHandler::authenticate));
 		
 		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.GET, HttpRoutesServices.ROUTE_FETCH_SERVICES_DISCOVERY,
 				handler::handleServiceDiscoveryRequest, authHandler::authenticate));
+		
+		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.GET, HttpRoutesServices.ROUTE_SERVICE_PING,
+				handler::handlePingServiceRequest, authHandler::authenticate));
 
 		return httpServerBuilder;
 	}

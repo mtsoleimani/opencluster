@@ -32,5 +32,7 @@ public class Metadata {
 	public static final String HTTP_PEM_CERT = "http_pem_cert";
 	public static final String HTTP_PEM_KEY = "http_pem_key";
 	
+	public static final String AUTH_TOKEN = "auth_token";
+	
 
 }

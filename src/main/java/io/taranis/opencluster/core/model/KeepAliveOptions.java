@@ -1,4 +1,4 @@
-package io.taranis.opencluster.service;
+package io.taranis.opencluster.core.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,11 +9,10 @@ import lombok.experimental.Accessors;
 @Setter
 @Getter
 @Accessors(chain = true)
-public class ClusterOptions {
+public class KeepAliveOptions {
 
-	private String clusterName;
+	protected int ttl;
 	
-	private boolean onChangedNotification;
-	
+	protected int deregisterAfter;
 	
 }

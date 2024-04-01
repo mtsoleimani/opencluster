@@ -1,4 +1,4 @@
-package io.taranis.opencluster.service;
+package io.taranis.opencluster.core.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,14 +9,14 @@ import lombok.experimental.Accessors;
 @Setter
 @Getter
 @Accessors(chain = true)
-public class KeepAliveOptions {
+public class HealthCheckOptions extends KeepAliveOptions {
 
-	protected int ttl;
-	
 	protected int interval;
-	
+
 	protected String http;
+
+	protected String tcp;
 	
-	protected int deregisterAfter;
-	
+	protected int port;
+
 }

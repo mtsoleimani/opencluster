@@ -1,11 +1,16 @@
 package io.taranis.opencluster.common.configs;
 
+import java.util.Properties;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class TcpOptionsConf implements IConfiguration {
+@Getter
+@NoArgsConstructor
+public class TcpOptionsConf extends ConfigurationBase {
 
-	
 	private boolean tcpOptionEnabled = true;
 	private int tcpBacklog = 1024;
 	private int tcpTxBuffer = 4096;
@@ -15,11 +20,11 @@ public class TcpOptionsConf implements IConfiguration {
 	private boolean tcpQuickAck = true;
 	
 	@Override
-	public boolean readConfig() {
+	public boolean readConfigFromEnvironmentVariables() {
 		
 		if(!NumberUtils.isDigits(System.getenv(Metadata.TCP_OPTIONS))) {
 			tcpOptionEnabled = false;
-			return true;
+			return false;
 		}	
 		
 		tcpOptionEnabled = (Integer.parseInt(System.getenv(Metadata.TCP_OPTIONS)) == 1);
@@ -31,57 +36,40 @@ public class TcpOptionsConf implements IConfiguration {
 			this.tcpBacklog = Integer.parseInt(System.getenv(Metadata.BACKLOG));
 			this.tcpTxBuffer = Integer.parseInt(System.getenv(Metadata.TX_BUFFER));
 			this.tcpRxBuffer = Integer.parseInt(System.getenv(Metadata.RX_BUFFER));
+			return true;
 		} catch (Exception e) {
 			tcpOptionEnabled = false;
+			return false;
 		}
-		
-		return true;
 	}
 
-
-	public boolean isTcpOptionEnabled() {
-		return tcpOptionEnabled;
-	}
-
-
-	public int getTcpBacklog() {
-		return tcpBacklog;
-	}
-
-
-	public int getTcpTxBuffer() {
-		return tcpTxBuffer;
-	}
-
-
-	public int getTcpRxBuffer() {
-		return tcpRxBuffer;
-	}
-
-
-	public boolean isTcpFastOpen() {
-		return tcpFastOpen;
-	}
-
-
-	public boolean isTcpNoDelay() {
-		return tcpNoDelay;
-	}
-
-
-	public boolean isTcpQuickAck() {
-		return tcpQuickAck;
-	}
-
+	
 	@Override
-	public String toString() {
-		return "tcpOptionEnabled =" + tcpOptionEnabled + "\n"
-				+ "tcpBacklog =" + tcpBacklog + "\n"
-				+ "tcpTxBuffer =" + tcpTxBuffer + "\n"
-				+ "tcpRxBuffer =" + tcpRxBuffer + "\n"
-				+ "tcpFastOpen =" + tcpFastOpen + "\n"
-				+ "tcpNoDelay =" + tcpNoDelay + "\n"
-				+ "tcpQuickAck =" + tcpQuickAck + "\n";
+	public boolean readConfigFromFile() {
+		Properties prop = readConfigFile();
+		if(prop == null)
+			return false;
+		
+		
+		if(!NumberUtils.isDigits(prop.getProperty(Metadata.TCP_OPTIONS))) {
+			tcpOptionEnabled = false;
+			return false;
+		}	
+		
+		tcpOptionEnabled = (Integer.parseInt(prop.getProperty(Metadata.TCP_OPTIONS)) == 1);
+		
+		try {
+			this.tcpFastOpen = (Integer.parseInt(prop.getProperty(Metadata.FAST_OPEN)) == 1);
+			this.tcpNoDelay = (Integer.parseInt(prop.getProperty(Metadata.NO_DELAY)) == 1);
+			this.tcpQuickAck = (Integer.parseInt(prop.getProperty(Metadata.QUICK_ACK)) == 1);
+			this.tcpBacklog = Integer.parseInt(prop.getProperty(Metadata.BACKLOG));
+			this.tcpTxBuffer = Integer.parseInt(prop.getProperty(Metadata.TX_BUFFER));
+			this.tcpRxBuffer = Integer.parseInt(prop.getProperty(Metadata.RX_BUFFER));
+			return true;
+		} catch (Exception e) {
+			tcpOptionEnabled = false;
+			return false;
+		}
 	}
 	
 }

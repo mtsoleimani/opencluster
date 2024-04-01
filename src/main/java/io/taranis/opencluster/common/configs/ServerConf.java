@@ -1,7 +1,11 @@
 package io.taranis.opencluster.common.configs;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public abstract class ServerConf implements IConfiguration {
+@Getter
+@NoArgsConstructor
+public abstract class ServerConf extends ConfigurationBase {
 	
 	protected String host = Metadata.ALL_HOSTS;
 	protected int port = defaultPort();
@@ -11,24 +15,4 @@ public abstract class ServerConf implements IConfiguration {
 	protected String serverCertPath;
 
 	protected abstract int defaultPort();
-
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public String getServerKeyPath() {
-		return serverKeyPath;
-	}
-
-	public String getServerCertPath() {
-		return serverCertPath;
-	}
-
-	public boolean isTlsEnabled() {
-		return tlsEnabled;
-	}
 }

@@ -1,4 +1,4 @@
-package io.taranis.opencluster.service.impl;
+package io.taranis.opencluster.core;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.taranis.opencluster.common.utils.StringUtils;
-import io.taranis.opencluster.service.Service;
-import io.taranis.opencluster.service.ServiceRepository;
+import io.taranis.opencluster.core.model.Service;
+import io.taranis.opencluster.core.model.ServiceStatus;
 
 public class InMemoryServiceRepository implements ServiceRepository {
 
@@ -40,20 +40,23 @@ public class InMemoryServiceRepository implements ServiceRepository {
 		
 		return put(service, service.getClusterOptions().getClusterName());
 	}
+	
+	private LocalDateTime now() {
+		return LocalDateTime.now(ZoneId.of("UTC"));
+	}
 
 	@Override
 	public Service put(Service service, String clustername) {
-		LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
 		if(StringUtils.isNullOrEmpty(service.getId()))
 			service.setId(UUID.randomUUID().toString());
 		
-		service.setLastSeen(now);
+		service.setLastSeen(now());
 		services.put(service.getId(), service);
 		
 		Map<String, LocalDateTime> cluster = clusters.putIfAbsent(clustername, new ConcurrentHashMap<>());
 		if(cluster == null)
 			cluster = clusters.get(clustername);
-		cluster.put(service.getId(), now);
+		cluster.put(service.getId(), now());
 		
 		return service;
 	}
@@ -121,27 +124,6 @@ public class InMemoryServiceRepository implements ServiceRepository {
 		
 		return Optional.of(list);
 	}
-
-
-	@Override
-	public void clear() {
-		this.clusters.clear();
-		this.services.clear();
-	}
-
-
-	@Override
-	public void clear(String clusterName) {
-		Map<String, LocalDateTime> cluster = this.clusters.get(clusterName);
-		if(cluster == null) 
-			return;
-		
-		cluster.entrySet().forEach(i -> {
-			this.services.remove(i.getKey());
-		});
-		cluster.clear();
-	}
-
 
 	@Override
 	public Optional<List<Service>> getByServiceName(String name) {
@@ -222,5 +204,48 @@ public class InMemoryServiceRepository implements ServiceRepository {
 		List<Service> list = stream.map(Entry::getValue).toList();
 		return (list == null || list.isEmpty()) ? Optional.empty() : Optional.of(list);
 	}
+	
+	@Override
+	public void clear() {
+		this.clusters.clear();
+		this.services.clear();
+	}
+
+	@Override
+	public void clear(String clusterName) {
+		Map<String, LocalDateTime> cluster = this.clusters.get(clusterName);
+		if(cluster == null) 
+			return;
+		
+		cluster.entrySet().forEach(i -> {
+			this.services.remove(i.getKey());
+		});
+		cluster.clear();
+	}
+
+	@Override
+	public void updateStatus(String serviceId, String clustername, ServiceStatus status) {
+		Service service = services.get(serviceId);
+		if(service == null)
+			return;
+		
+		service.setLastSeen(now());
+		service.setServiceStatus(status);
+	}
+
+	@Override
+	public void refreshService(String serviceId, String clustername) {
+		updateStatus(serviceId, clustername, ServiceStatus.HEALTHY);
+		
+		if(clustername == null)
+			clustername = DEFAULT_CLUSTER_NAME;
+		
+		Map<String, LocalDateTime> cluster = clusters.get(clustername);
+		if(cluster == null)
+			return;
+		
+		cluster.computeIfPresent(clustername, (k,v) -> now()); 
+	}
+
 
 }

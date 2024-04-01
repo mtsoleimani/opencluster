@@ -1,4 +1,4 @@
-package io.taranis.opencluster.service;
+package io.taranis.opencluster.core.model;
 
 public enum ServiceStatus {
 	

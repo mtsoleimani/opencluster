@@ -1,8 +1,10 @@
-package io.taranis.opencluster.service;
+package io.taranis.opencluster.core;
 
 import java.util.List;
 
-public interface ServiceClusterHandler {
+import io.taranis.opencluster.core.model.Service;
+
+public interface ClusterManager {
 
 	public void join(Service service) throws RuntimeException;
 	

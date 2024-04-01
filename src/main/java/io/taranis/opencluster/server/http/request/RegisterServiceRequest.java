@@ -1,10 +1,10 @@
 package io.taranis.opencluster.server.http.request;
 
 import io.taranis.opencluster.common.utils.StringUtils;
-import io.taranis.opencluster.service.ClusterOptions;
-import io.taranis.opencluster.service.HealthCheckOptions;
-import io.taranis.opencluster.service.KeepAliveOptions;
-import io.taranis.opencluster.service.Service;
+import io.taranis.opencluster.core.model.ClusterOptions;
+import io.taranis.opencluster.core.model.HealthCheckOptions;
+import io.taranis.opencluster.core.model.KeepAliveOptions;
+import io.taranis.opencluster.core.model.Service;
 
 public class RegisterServiceRequest extends Service implements InputValidator {
 
@@ -38,10 +38,7 @@ public class RegisterServiceRequest extends Service implements InputValidator {
 			return false;
 		
 		
-		if(healthCheckOptions != null 
-		&& StringUtils.isNullOrEmpty(keepAliveOptions.getHttp()))
-			keepAliveOptions = null;
-		else if(!validate(keepAliveOptions))
+		if(keepAliveOptions != null && !validate(keepAliveOptions))
 			return false;
 		
 		
@@ -63,6 +60,11 @@ public class RegisterServiceRequest extends Service implements InputValidator {
 		&& StringUtils.isNullOrEmpty(healthCheckOptions.getTcp()))
 			return true;
 				
+		if(!StringUtils.isNullOrEmpty(healthCheckOptions.getTcp())) {
+			if(healthCheckOptions.getPort() <= 0 || healthCheckOptions.getPort() > 65535)
+				return false;
+		}
+		
 		return (healthCheckOptions.getTtl() > 0 || healthCheckOptions.getInterval() > 0);
 	}
 
@@ -70,10 +72,7 @@ public class RegisterServiceRequest extends Service implements InputValidator {
 		if(keepAliveOptions == null)
 			return true;
 		
-		if(StringUtils.isNullOrEmpty(keepAliveOptions.getHttp()))
-			return true;
-				
-		return (keepAliveOptions.getTtl() > 0 || keepAliveOptions.getInterval() > 0);
+		return (keepAliveOptions.getTtl() > 0);
 	}
 
 	private boolean validate(ClusterOptions clusterOptions) {
