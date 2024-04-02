@@ -1,6 +1,8 @@
 package io.taranis.opencluster.server;
 
-import io.taranis.opencluster.cluster.MessageHandler;
+import io.taranis.opencluster.common.configs.TcpOptionsConf;
+import io.taranis.opencluster.server.messages.MessageHandler;
+import io.taranis.opencluster.server.messages.MessageParser;
 import io.vertx.core.Vertx;
 
 public class WebSocketServerBuilder extends BasicServerBuilder {
@@ -45,8 +47,13 @@ public class WebSocketServerBuilder extends BasicServerBuilder {
 		return this;
 	}
 	
+	public WebSocketServerBuilder withMessageParser(MessageParser messageParser) {
+		this.messageParser = messageParser;
+		return this;
+	}
+	
 	public WebSocketServer build() {
-		return new WebSocketServer(vertx, host, port, tcpOptionsConf, messageHandler);
+		return new WebSocketServer(vertx, host, port, tcpOptionsConf, messageHandler, messageParser);
 	}
 	
 	

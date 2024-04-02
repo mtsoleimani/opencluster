@@ -1,6 +1,6 @@
 package io.taranis.opencluster.server;
 
-import io.taranis.opencluster.messages.Message;
+import io.taranis.opencluster.server.messages.Message;
 import io.taranis.opencluster.server.transport.Transport;
 
 
