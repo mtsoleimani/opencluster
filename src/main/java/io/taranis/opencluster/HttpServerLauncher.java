@@ -10,8 +10,11 @@ import io.taranis.opencluster.server.http.AppHttpMethod;
 import io.taranis.opencluster.server.http.HttpServerBuilder;
 import io.taranis.opencluster.server.http.VertxCallable;
 import io.taranis.opencluster.server.http.handlers.HttpServiceHandler;
+import io.taranis.opencluster.server.http.handlers.HttpStorageHandler;
 import io.taranis.opencluster.server.http.handlers.impl.HttpServiceHandlerImpl;
+import io.taranis.opencluster.server.http.handlers.impl.HttpStorageHandlerImpl;
 import io.taranis.opencluster.server.http.routes.HttpRoutesServices;
+import io.taranis.opencluster.server.http.routes.HttpRoutesStorage;
 import io.taranis.opencluster.server.http.security.IVertxAuthHandler;
 import io.vertx.core.Vertx;
 
@@ -38,6 +41,7 @@ public class HttpServerLauncher {
 			.withTcpOptionsConfigs(tcpOptionsConf);
 
 		initServiceHttpRoutes(httpServerBuilder, authHandler);
+		initStorageHttpRoutes(httpServerBuilder, authHandler);
 		httpServerBuilder.start();
 	}
 
@@ -69,6 +73,24 @@ public class HttpServerLauncher {
 		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.GET, HttpRoutesServices.ROUTE_SERVICE_PING,
 				handler::handlePingServiceRequest, authHandler::authenticate));
 
+		return httpServerBuilder;
+	}
+	
+	private HttpServerBuilder initStorageHttpRoutes(final HttpServerBuilder httpServerBuilder, final IVertxAuthHandler authHandler) {
+		HttpStorageHandler handler = new HttpStorageHandlerImpl(systemCoordinator);
+		
+		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.POST, HttpRoutesStorage.ROUTE_STORAGE_SET,
+				handler::handleSetValueInStorageRequest, authHandler::authenticate));
+		
+		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.DELETE, HttpRoutesStorage.ROUTE_STORAGE_REMOVE,
+				handler::handleRemoveValueFromStorageRequest, authHandler::authenticate));
+		
+		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.PUT, HttpRoutesStorage.ROUTE_STORAGE_UPDATE_TTL,
+				handler::handleUpdateTtlInStorageRequest, authHandler::authenticate));
+		
+		httpServerBuilder.addRoute(new VertxCallable(AppHttpMethod.GET, HttpRoutesStorage.ROUTE_STORAGE_GET,
+				handler::handleGetValueFromStorageRequest, authHandler::authenticate));
+		
 		return httpServerBuilder;
 	}
 
